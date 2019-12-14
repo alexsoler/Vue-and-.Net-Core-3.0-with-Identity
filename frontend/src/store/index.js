@@ -1,18 +1,32 @@
+/**
+ * Vuex
+ *
+ * @library
+ *
+ * https://vuex.vuejs.org/en/
+ */
+
+// Lib imports
 import Vue from 'vue'
 import Vuex from 'vuex'
+
+// Store functionality
+import actions from './actions'
+import getters from './getters'
+import modules from './modules'
+import mutations from './mutations'
+import state from './state'
 import { vuexOidcCreateStoreModule } from 'vuex-oidc'
 import { oidcSettings } from '../config/oidc'
 
 Vue.use(Vuex)
 
-export default new Vuex.Store({
-  state: {
-  },
-  mutations: {
-  },
-  actions: {
-  },
+// Create a new store
+const store = new Vuex.Store({
+  actions,
+  getters,
   modules: {
+    ...modules,
     oidcStore: vuexOidcCreateStoreModule(
       oidcSettings,
       // NOTE: If you do not want to use localStorage for tokens, in stead of just passing oidcSettings, you can
@@ -37,5 +51,9 @@ export default new Vuex.Store({
         oidcError: (payload) => console.log('OIDC error', payload)
       }
     )
-  }
+  },
+  mutations,
+  state
 })
+
+export default store

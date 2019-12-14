@@ -1,31 +1,38 @@
+/**
+ * Vue Router
+ *
+ * @library
+ *
+ * https://router.vuejs.org/en/
+ */
+
+// Lib imports
 import Vue from 'vue'
-import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import VueAnalytics from 'vue-analytics'
+import Router from 'vue-router'
+import Meta from 'vue-meta'
 import OidcCallback from '../views/oidc/OidcCallback.vue'
 import OidcPopupCallback from '../views/oidc/OidcPopupCallback.vue'
 import OidcCallbackError from '../views/oidc/OidcCallbackError.vue'
 import { vuexOidcCreateRouterMiddleware } from 'vuex-oidc'
 import store from '@/store'
 
-Vue.use(VueRouter)
+// Routes
+import paths from './paths'
 
-const routes = [
-  {
-    path: '/',
-    name: 'home',
-    component: Home,
-    meta: {
-      isPublic: true
-    }
-  },
-  {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  },
+function route (path, view, name) {
+  return {
+    name: name || view,
+    path,
+    component: (resolve) => import(
+      `@/views/${view}.vue`
+    ).then(resolve)
+  }
+}
+
+Vue.use(Router)
+
+const routesOidc = [
   {
     path: '/protected',
     name: 'protected',
@@ -51,12 +58,41 @@ const routes = [
   }
 ]
 
-const router = new VueRouter({
+// Create a new router
+const router = new Router({
   mode: 'history',
-  base: process.env.BASE_URL,
-  routes
+  routes: [
+    ...paths.map(path => route(path.path, path.view, path.name)).concat([
+      { path: '*', redirect: '/' }
+    ]),
+    ...routesOidc
+  ],
+  scrollBehavior (to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+    if (to.hash) {
+      return { selector: to.hash }
+    }
+    return { x: 0, y: 0 }
+  }
 })
 
 router.beforeEach(vuexOidcCreateRouterMiddleware(store, 'oidcStore'))
+
+Vue.use(Meta)
+
+// Bootstrap Analytics
+// Set in .env
+// https://github.com/MatteoGabriele/vue-analytics
+if (process.env.GOOGLE_ANALYTICS) {
+  Vue.use(VueAnalytics, {
+    id: process.env.GOOGLE_ANALYTICS,
+    router,
+    autoTracking: {
+      page: process.env.NODE_ENV !== 'development'
+    }
+  })
+}
 
 export default router
