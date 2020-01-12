@@ -1,7 +1,7 @@
 module.exports = {
-  'transpileDependencies': [
-    'vuetify'
-  ],
+  devServer: {
+    disableHostCheck: true
+  },
   pages: {
     app: {
       entry: 'src/main.js',
