@@ -20,13 +20,14 @@ import store from '@/store'
 // Routes
 import paths from './paths'
 
-function route (path, view, name) {
+function route (path, view, name, meta) {
   return {
     name: name || view,
     path,
     component: (resolve) => import(
       `@/views/${view}.vue`
-    ).then(resolve)
+    ).then(resolve),
+    meta
   }
 }
 
@@ -62,7 +63,7 @@ const routesOidc = [
 const router = new Router({
   mode: 'history',
   routes: [
-    ...paths.map(path => route(path.path, path.view, path.name)).concat([
+    ...paths.map(path => route(path.path, path.view, path.name, path.meta)).concat([
       { path: '*', redirect: '/' }
     ]),
     ...routesOidc

@@ -7,7 +7,10 @@ export default [
   {
     path: '',
     // Relative to /src/views
-    view: 'Dashboard'
+    view: 'Dashboard',
+    meta: {
+      isPublic: true
+    }
   },
   {
     path: '/user-profile',
